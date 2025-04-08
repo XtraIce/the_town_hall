@@ -1,7 +1,10 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:the_town_hall/widgets/gpsmap.dart';
+import 'package:the_town_hall/widgets/location_provider.dart';
+import 'package:the_town_hall/widgets/locationsearch.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,11 +20,24 @@ class _HomePageState extends State<HomePage> {
       body: ListView(
         children: [
           titleBar(),
-          gpsSearchBar(),
-          SizedBox(
-            height: 400, // Set a fixed height for the map
-            child: GpsMap(),
-          )
+          ChangeNotifierProvider(create: (context) => LocationNotifier(),
+            child: Column(
+              children: [
+                Stack(
+                  children: [
+                    SizedBox(
+                      height: 400, // Set a fixed height for the map
+                      child: GpsMap(),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: LocationSearchScreen(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
