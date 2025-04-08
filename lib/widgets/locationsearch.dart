@@ -88,6 +88,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
                 onSubmitted: (text) {
                   _searchLocation(text);
                 },
+                onTapOutside: (event) => FocusScope.of(context).unfocus(),
               ),
           ),
         );

@@ -88,7 +88,7 @@ class _GpsMapState extends State<GpsMap> {
                     maxZoom: 20,
                     minZoom: 2,
                     interactionOptions: InteractionOptions(
-                      flags: InteractiveFlag.all & InteractiveFlag.drag,                    )
+                      flags: InteractiveFlag.all),
                     // Add other options like interaction gestures here if needed
                     // initialRotation: 0.0,
                     // interactionOptions: InteractionOptions(flags: InteractiveFlag.all),
