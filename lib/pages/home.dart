@@ -5,10 +5,18 @@ import 'package:provider/provider.dart';
 import 'package:the_town_hall/widgets/gpsmap.dart';
 import 'package:the_town_hall/widgets/location_provider.dart';
 import 'package:the_town_hall/widgets/locationsearch.dart';
+import 'package:the_town_hall/widgets/filter_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
+  Map<String, bool> get _repFilters => {
+        'Local': false,
+        'City': false,
+        'County': false,
+        'State': true,
+        'National': true,
+      };
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -20,22 +28,150 @@ class _HomePageState extends State<HomePage> {
       body: ListView(
         children: [
           titleBar(),
-          ChangeNotifierProvider(create: (context) => LocationNotifier(),
-            child: Column(
-              children: [
-                Stack(
-                  children: [
-                    SizedBox(
-                      height: 400, // Set a fixed height for the map
-                      child: GpsMap(),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: LocationSearchScreen(),
+          mapAndSearch(),
+          representativeFilterBar()
+        ],
+      ),
+    );
+  }
+
+  Container representativeFilterBar() {
+    return Container(
+          width: 402,
+          height: 377,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            spacing: 5,
+            children: [
+              Container(
+                width: double.infinity,
+                height: 35,
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0x3F5686E1),
+                      blurRadius: 4,
+                      offset: Offset(0, 4),
+                      spreadRadius: 0,
                     ),
                   ],
                 ),
-              ],
+                child: FilterBar(filters: widget._repFilters)
+              ),
+            ],
+          ),
+        );
+  }
+
+  ChangeNotifierProvider<LocationNotifier> mapAndSearch() {
+    return ChangeNotifierProvider(
+          create: (context) => LocationNotifier(),
+          child: Column(
+            children: [
+              Stack(
+                children: [
+                  SizedBox(
+                    height: 400, // Set a fixed height for the map
+                    child: GpsMap(),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: LocationSearchScreen(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+  }
+
+  Container titleBar() {
+    return Container(
+      width: 402,
+      padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 16),
+      color: Colors.blue[50],
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [menuButton(), Flexible(child: townHallName()), userIcon()],
+      ),
+    );
+  }
+
+  ConstrainedBox gpsSearchBar() {
+    return ConstrainedBox(
+      constraints: BoxConstraints(minWidth: 360, maxWidth: 720),
+      child: Container(
+        width: double.infinity,
+        height: 56,
+        clipBehavior: Clip.antiAlias,
+        decoration: ShapeDecoration(
+          color: const Color(0xFFECE6F0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Container(
+                height: double.infinity,
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          spacing: 8,
+                          children: [gpsIcon(), gpsTextBox()],
+                        ),
+                      ),
+                    ),
+                    gpsTrailingIcon(),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  SizedBox gpsTrailingIcon() {
+    return SizedBox(
+      width: 48,
+      height: 48,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: ShapeDecoration(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(100),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [searchIcon()],
             ),
           ),
         ],
@@ -43,124 +179,22 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Container titleBar() {
-    return Container(
-          width: 402,
-          padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 16),
-          color: Colors.blue[50],
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              menuButton(),
-              Flexible(child: townHallName()),
-              userIcon(),
-            ],
-          ),
-        );
-  }
-
-  ConstrainedBox gpsSearchBar() {
-    return ConstrainedBox(
-                constraints: BoxConstraints(minWidth: 360, maxWidth: 720),
-                child: Container(
-                  width: double.infinity,
-                  height: 56,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: ShapeDecoration(
-                    color: const Color(0xFFECE6F0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: double.infinity,
-                          padding: const EdgeInsets.all(8),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: SizedBox(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    spacing: 8,
-                                    children: [
-                                      gpsIcon(),
-                                      gpsTextBox(),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              gpsTrailingIcon(),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-  }
-
-  SizedBox gpsTrailingIcon() {
-  return SizedBox(
-          width: 48,
-          height: 48,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                clipBehavior: Clip.antiAlias,
-                decoration: ShapeDecoration(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    searchIcon(),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-  }
-
   Container searchIcon() {
     return Container(
-                    padding: const EdgeInsets.all(8),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: Stack(
-                            children: [
-                              Icon(Icons.search),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 24,
+            height: 24,
+            child: Stack(children: [Icon(Icons.search)]),
+          ),
+        ],
+      ),
+    );
   }
 
   Container gpsIcon() {
@@ -243,11 +277,16 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           ShaderMask(
-            shaderCallback: (bounds) => SweepGradient(
-              colors: [Color(0xFFFF0000), Color(0xFFFFFFFF), Color(0xFF5686E1)],
-              stops: [0.28, 0.42, 0.96],
-              transform: GradientRotation(0.90),
-            ).createShader(bounds),
+            shaderCallback:
+                (bounds) => SweepGradient(
+                  colors: [
+                    Color(0xFFFF0000),
+                    Color(0xFFFFFFFF),
+                    Color(0xFF5686E1),
+                  ],
+                  stops: [0.28, 0.42, 0.96],
+                  transform: GradientRotation(0.90),
+                ).createShader(bounds),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -305,10 +344,7 @@ class _HomePageState extends State<HomePage> {
           fit: BoxFit.contain,
         ),
         shape: RoundedRectangleBorder(
-          side: BorderSide(
-            width: 1,
-            color: const Color(0xFF5686E1),
-          ),
+          side: BorderSide(width: 1, color: const Color(0xFF5686E1)),
           borderRadius: BorderRadius.circular(5),
         ),
         shadows: [
