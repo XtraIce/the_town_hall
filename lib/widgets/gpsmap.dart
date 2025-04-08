@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -16,6 +18,8 @@ class GpsMap extends StatefulWidget {
 class _GpsMapState extends State<GpsMap> {
   // This widget is the root of your application.
   LatLng? _currentLocation;
+  LatLng? _gpsLocation;
+  bool _isGps = true;
   final LocationService _locationService = LocationService();
   final MapController _mapController = MapController();
 
@@ -23,18 +27,29 @@ class _GpsMapState extends State<GpsMap> {
   void initState() {
     super.initState();
     _getCurrentLocation();
+    _mapController.mapEventStream.listen((event) {
+      if (event is MapEventMove) {
+        print('Map zoom level: ${event.camera.zoom}');
+        print('Map center: ${event.camera.center.latitude}, ${event.camera.center.longitude}');
+        // Handle map move event if needed
+      }
+    });
   }
 
 
   Future<void> _getCurrentLocation() async {
-      LatLng? location = await _locationService.getCurrentLocation();
+      _gpsLocation = await _locationService.getCurrentLocation();
       setState(() {
-        _currentLocation = location;
+        _currentLocation = _gpsLocation;
+        _isGps = true;
+        print('Gps location: ${_gpsLocation!.latitude}, ${_gpsLocation!.longitude}');
       });
 
       if(_currentLocation != null) {
+
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _mapController.move(_currentLocation!, 13.0); // Move the map to the current location
+          print('Current location: ${_currentLocation!.latitude}, ${_currentLocation!.longitude}');
         });
       } else {
         print('Failed to get current location');
@@ -47,12 +62,19 @@ class _GpsMapState extends State<GpsMap> {
 
     return Consumer<LocationNotifier>(
       builder: (context, locationNotifier, child) {
-        final searchedLocation = locationNotifier.searchedLocation;
-        if (searchedLocation != null) {
-          _currentLocation = searchedLocation;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _mapController.move(searchedLocation, initialZoom);
-          });
+        if (!_isGps)
+        {
+          final searchedLocation = locationNotifier.searchedLocation;
+          if (searchedLocation != null) {
+            _currentLocation = searchedLocation;
+            print("updated current location with searched location: ${searchedLocation!.latitude}, ${searchedLocation!.longitude}");
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _mapController.move(searchedLocation, initialZoom);
+            });
+          }
+        }
+        else {
+          _isGps = false;
         }
         return Scaffold(
           body: _currentLocation == null

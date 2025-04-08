@@ -65,8 +65,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
             ),
           ),
           child:
-            Expanded(
-              child: TextField(
+            TextField(
                 controller: _searchController,
                 textAlignVertical: TextAlignVertical.center,
                 maxLines: 1,
@@ -90,7 +89,6 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
                   _searchLocation(text);
                 },
               ),
-            ),
           ),
         );
   }
