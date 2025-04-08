@@ -56,7 +56,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
           alignment: Alignment.bottomCenter,
           width: double.infinity,
           height: 70,
-          padding: const EdgeInsets.only(top: 8, left: 16, right: 16, bottom: 8),
+          padding: const EdgeInsets.only(top: 12, left: 16, right: 16, bottom: 8),
           clipBehavior: Clip.antiAlias,
           decoration: ShapeDecoration(
             color: const Color(0xFFECE6F0),
@@ -73,7 +73,9 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
                 textAlign: TextAlign.start,
                 decoration: InputDecoration(
                 hintText: 'Enter location name',
+                hintStyle: TextStyle(color: Colors.grey.withOpacity(0.7) ),
                 suffixIcon: IconButton(
+                  alignment: Alignment.topCenter,
                   icon: Icon(Icons.search),
                   onPressed: () {
                   _searchLocation(_searchController.text);
