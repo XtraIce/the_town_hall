@@ -1,5 +1,5 @@
 class Representative {
-  final String id;
+  final int id;
   final String name;
   final String position;
   final Enum positionLevel;
@@ -38,4 +38,13 @@ class ContactInfo {
     required this.website,
     required this.officeAddress,
   });
+
+}
+
+enum PositionLevel {
+  local,
+  city,
+  county,
+  state,
+  national
 }

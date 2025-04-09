@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:the_town_hall/widgets/email_generator_screen.dart';
+import 'package:the_town_hall/models/representative_card.dart';
 import 'package:the_town_hall/widgets/gpsmap.dart';
 import 'package:the_town_hall/widgets/location_provider.dart';
 import 'package:the_town_hall/widgets/locationsearch.dart';
@@ -15,6 +18,45 @@ class HomePage extends StatefulWidget {
     'State': true,
     'National': true,
   };
+
+  List<Representative> get _representatives => [
+    Representative(
+      id: 1,
+      name: 'John Doe',
+      position: 'Mayor',
+      positionLevel: PositionLevel.city,
+      district: 'District 12',
+      city: 'La Mesa',
+      party: 'Democrat',
+      state: 'California',
+      contactInfo: ContactInfo(
+        email: 'jdoe@lamesa.gov',
+        phone: '6198573234',
+        website: 'cityoflamesa.us',
+        officeAddress: '123 Main St, La Mesa, CA 91942',
+      ),
+      imageUrl: 'assets/images/user_icon.png',
+    ),
+    Representative(
+      id: 2,
+      name: 'Jane Smith',
+      position: 'City Council Member',
+      positionLevel: PositionLevel.city,
+      district: 'District 3',
+      city: 'La Mesa',
+      party: 'Republican',
+      state: 'California',
+      contactInfo: ContactInfo(
+        email: 'jsmith@lamesa.gov',
+        phone: '6198573234',
+        website: 'cityoflamesa.us',
+        officeAddress: '123 Main St, La Mesa, CA 91942',
+      ),
+      imageUrl: 'assets/images/user_icon.png',
+    ),
+    // Add more representatives as needed
+  ];
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -23,14 +65,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        children: 
-        [
-          titleBar(),
-          mapAndSearch(),
-          representatives(),
-        ],
-      ),
+      body: ListView(children: [titleBar(), mapAndSearch(), representatives()]),
     );
   }
 
@@ -40,13 +75,10 @@ class _HomePageState extends State<HomePage> {
       height: 377,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        representativeFilterBar(),
-        representativeList(),
-      ],
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [representativeFilterBar(), representativeList()],
       ),
     );
   }
@@ -54,98 +86,134 @@ class _HomePageState extends State<HomePage> {
   Expanded representativeList() {
     return Expanded(
       child: ListView.builder(
-        itemCount: 10,
+        itemCount: widget._representatives.length,
         itemBuilder: (context, index) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          child: Center(
-          child: Card(
-            color: Colors.white,
-            elevation: 2,
-            child: Row(
-            children: [
-              representativeDetails(index),
-              questionAndHistory(),
-              Spacer( flex: 5,),
-            ],
+          return Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            child: Center(
+              child: Card(
+                color: Colors.white,
+                elevation: 2,
+                child: Row(
+                  children: [
+                    representativeDetails(index),
+                    questionAndHistory(index),
+                    Spacer(flex: 5),
+                  ],
+                ),
+              ),
             ),
-          ),
-          ),
-        );
+          );
         },
       ),
-      );
+    );
   }
 
-  Column questionAndHistory() {
+  Column questionAndHistory(int index) {
+    final representative = widget._representatives[index];
     return Column(
       spacing: 16,
-      children: 
-      [
+      children: [
         GestureDetector(
-        onTap: () {
-          // Handle Question Mark icon tap
-          print('Question icon tapped');
-        },
-        child: Icon(Icons.question_mark_rounded, color: Colors.blue),
+          onTap: () {
+            // Handle Question Mark icon tap
+            print('Question icon tapped');
+          },
+          child: Icon(Icons.question_mark_rounded, color: Colors.blue),
         ),
         GestureDetector(
-        onTap: () {
-          // Handle History icon tap
-          print('History icon tapped');
-        },
-        child: Icon(Icons.history_edu, color: Colors.blue),
+          onTap: () {
+            // Handle History icon tap
+            print('History icon tapped');
+          },
+          child: Icon(Icons.history_edu, color: Colors.blue),
         ),
       ],
     );
   }
 
   Expanded representativeDetails(int index) {
+    final representative = widget._representatives[index];
     return Expanded(
       flex: 75,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ListTile(    
+          ListTile(
             leading: Icon(Icons.person),
-            title: Text('Representative ${index + 1}'),
-            subtitle: Text('Details about Representative ${index + 1}'),
+            title: Text(representative.name),
+            subtitle: Text(representative.position),
           ),
-          contactRepRow(),
+          contactRepRow(representative),
         ],
       ),
     );
   }
 
-  Row contactRepRow() {
-  return Row(
-    mainAxisSize: MainAxisSize.max,
-    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    children: [
-    GestureDetector(
-      onTap: () {
-      // Handle phone icon tap
-      print('Phone icon tapped');
-      },
-      child: Icon(Icons.phone, color: Colors.red),
-    ),
-    GestureDetector(
-      onTap: () {
-      // Handle email icon tap
-      print('Email icon tapped');
-      },
-      child: Icon(Icons.email, color: Colors.red),
-    ),
-    GestureDetector(
-      onTap: () {
-      // Handle mailbox icon tap
-      print('Mailbox icon tapped');
-      },
-      child: Icon(Icons.markunread_mailbox, color: Colors.red),
-    ),
-    ],
-  );
+  Row contactRepRow(Representative representative) {
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        GestureDetector(
+          onTap: () async {
+            // Handle phone icon tap
+            final Uri phoneUri = Uri(
+              scheme: 'tel',
+              path: representative.contactInfo.phone,
+            );
+            if (await canLaunchUrl(phoneUri)) {
+              await launchUrl(phoneUri);
+            } else {
+              print('Could not launch phone app: $phoneUri');
+            }
+          },
+          child: Icon(Icons.phone, color: Colors.red),
+        ),
+        GestureDetector(
+          onTap: () async {
+            // Handle email icon tap
+            final generatedEmail = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => EmailGeneratorScreen(
+                      representative: representative,
+                      onEmailGenerated: (email) {
+                        // Handle the generated email
+                        print('Callback: $email');
+                      },
+                    ),
+              ),
+            );
+            if (generatedEmail != null) {
+              final Uri emailUri = Uri(
+                scheme: 'mailto',
+                path: representative.contactInfo.email,
+                query:
+                    'subject=${Uri.encodeComponent('Hello ${representative.name}')}'
+                    '&body=${Uri.encodeComponent(generatedEmail)}',
+              );
+              if (await canLaunchUrl(emailUri)) {
+                await launchUrl(emailUri);
+              } else {
+                print('Could not launch email app: $emailUri');
+              }
+            }
+            print('Email icon tapped');
+          },
+          child: Icon(Icons.email, color: Colors.red),
+        ),
+        GestureDetector(
+          onTap: () {
+            // Handle mailbox icon tap
+            print('Mailbox icon tapped');
+          },
+          child: Icon(Icons.markunread_mailbox, color: Colors.red),
+        ),
+      ],
+    );
   }
 
   Container representativeFilterBar() {
