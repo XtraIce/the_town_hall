@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:the_town_hall/widgets/gpsmap.dart';
@@ -11,12 +9,12 @@ class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   Map<String, bool> get _repFilters => {
-        'Local': false,
-        'City': false,
-        'County': false,
-        'State': true,
-        'National': true,
-      };
+    'Local': false,
+    'City': false,
+    'County': false,
+    'State': true,
+    'National': true,
+  };
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -26,68 +24,171 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: ListView(
-        children: [
+        children: 
+        [
           titleBar(),
           mapAndSearch(),
-          representativeFilterBar()
+          representatives(),
         ],
       ),
     );
   }
 
-  Container representativeFilterBar() {
+  Container representatives() {
     return Container(
-          width: 402,
-          height: 377,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: 5,
+      width: 402,
+      height: 377,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        representativeFilterBar(),
+        representativeList(),
+      ],
+      ),
+    );
+  }
+
+  Expanded representativeList() {
+    return Expanded(
+      child: ListView.builder(
+        itemCount: 10,
+        itemBuilder: (context, index) {
+        return Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          child: Center(
+          child: Card(
+            color: Colors.white,
+            elevation: 2,
+            child: Row(
             children: [
-              Container(
-                width: double.infinity,
-                height: 35,
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(0x3F5686E1),
-                      blurRadius: 4,
-                      offset: Offset(0, 4),
-                      spreadRadius: 0,
-                    ),
-                  ],
-                ),
-                child: FilterBar(filters: widget._repFilters)
-              ),
+              representativeDetails(index),
+              questionAndHistory(),
+              Spacer( flex: 5,),
             ],
+            ),
+          ),
           ),
         );
+        },
+      ),
+      );
+  }
+
+  Column questionAndHistory() {
+    return Column(
+      spacing: 16,
+      children: 
+      [
+        GestureDetector(
+        onTap: () {
+          // Handle Question Mark icon tap
+          print('Question icon tapped');
+        },
+        child: Icon(Icons.question_mark_rounded, color: Colors.blue),
+        ),
+        GestureDetector(
+        onTap: () {
+          // Handle History icon tap
+          print('History icon tapped');
+        },
+        child: Icon(Icons.history_edu, color: Colors.blue),
+        ),
+      ],
+    );
+  }
+
+  Expanded representativeDetails(int index) {
+    return Expanded(
+      flex: 75,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(    
+            leading: Icon(Icons.person),
+            title: Text('Representative ${index + 1}'),
+            subtitle: Text('Details about Representative ${index + 1}'),
+          ),
+          contactRepRow(),
+        ],
+      ),
+    );
+  }
+
+  Row contactRepRow() {
+  return Row(
+    mainAxisSize: MainAxisSize.max,
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: [
+    GestureDetector(
+      onTap: () {
+      // Handle phone icon tap
+      print('Phone icon tapped');
+      },
+      child: Icon(Icons.phone, color: Colors.red),
+    ),
+    GestureDetector(
+      onTap: () {
+      // Handle email icon tap
+      print('Email icon tapped');
+      },
+      child: Icon(Icons.email, color: Colors.red),
+    ),
+    GestureDetector(
+      onTap: () {
+      // Handle mailbox icon tap
+      print('Mailbox icon tapped');
+      },
+      child: Icon(Icons.markunread_mailbox, color: Colors.red),
+    ),
+    ],
+  );
+  }
+
+  Container representativeFilterBar() {
+    return Container(
+      width: double.infinity,
+      height: 35,
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x3F5686E1),
+            blurRadius: 4,
+            offset: Offset(0, 4),
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: FilterBar(filters: widget._repFilters),
+    );
   }
 
   ChangeNotifierProvider<LocationNotifier> mapAndSearch() {
     return ChangeNotifierProvider(
-          create: (context) => LocationNotifier(),
-          child: Column(
+      create: (context) => LocationNotifier(),
+      child: Column(
+        children: [
+          Stack(
             children: [
-              Stack(
-                children: [
-                  SizedBox(
-                    height: 400, // Set a fixed height for the map
-                    child: GpsMap(),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: LocationSearchScreen(),
-                  ),
-                ],
+              SizedBox(
+                height: 400, // Set a fixed height for the map
+                child: GpsMap(),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: LocationSearchScreen(),
               ),
             ],
           ),
-        );
+        ],
+      ),
+    );
   }
 
   Container titleBar() {
