@@ -188,12 +188,17 @@ class _HomePageState extends State<HomePage> {
               ),
             );
             if (generatedEmail != null) {
+              String encodedBody = Uri.encodeComponent(generatedEmail);
+              encodedBody = encodedBody
+                          .replaceAll("%27", "'")
+                          .replaceAll("%22", '"');
+              print('Encoded body: $encodedBody');
               final Uri emailUri = Uri(
                 scheme: 'mailto',
                 path: representative.contactInfo.email,
                 query:
                     'subject=${Uri.encodeComponent('Hello ${representative.name}')}'
-                    '&body=${Uri.encodeComponent(generatedEmail)}',
+                    '&body=$encodedBody',
               );
               if (await canLaunchUrl(emailUri)) {
                 await launchUrl(emailUri);

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:the_town_hall/classes/deep_ai_service.dart';
+import 'package:the_town_hall/classes/ai_service.dart';
 import 'package:the_town_hall/models/representative_card.dart';
 
 class EmailGeneratorScreen extends StatefulWidget {
@@ -16,11 +16,16 @@ class EmailGeneratorScreen extends StatefulWidget {
 }
 
 class _EmailGeneratorScreenState extends State<EmailGeneratorScreen> {
-  final DeepAiService _deepAiService = DeepAiService();
+  final AiService _deepAiService = AiService();
   String _generatedEmail = '';
   String _topic = ''; // Replace with actual topic
   bool _isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _deepAiService.init();
+  }
   Future<void> _generateEmail(String topic) async {
     setState(() {
       _isLoading = true;

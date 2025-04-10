@@ -69,7 +69,7 @@ flutter:
     - assets/images/user_icon.png
     - assets/images/home_button.png
     - assets/images/gps_arrow.png
-    - assets/config.json
+    - assets/ai_config.json
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
