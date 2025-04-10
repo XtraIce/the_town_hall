@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:the_town_hall/models/glossary.dart';
 import 'package:the_town_hall/widgets/email_generator_screen.dart';
 import 'package:the_town_hall/models/representative_card.dart';
 import 'package:the_town_hall/widgets/gpsmap.dart';
@@ -56,6 +57,58 @@ class HomePage extends StatefulWidget {
     ),
     // Add more representatives as needed
   ];
+
+  Glossary get _representativeGlossary => Glossary(entries: [
+    GlossaryEntry(
+      term: 'Mayor',
+      definition: 'The elected head of a city, town, or municipality.',
+      whatTheyDo: 'Oversees the city government and represents the city in official functions.',
+    ),
+    GlossaryEntry(
+      term: 'City Council Member',
+      definition: 'An elected official who serves on the legislative body of a city.',
+      whatTheyDo: 'Makes decisions on local laws, budgets, and policies.',
+    ),
+    GlossaryEntry(
+      term: 'Governor',
+      definition: 'The elected executive head of a state in the United States.',
+      whatTheyDo: 'Oversees the state government and implements state laws.',
+    ),
+    GlossaryEntry(
+      term: 'Senator',
+      definition: 'A member of the Senate, the upper chamber of the United States Congress.',
+      whatTheyDo: 'Represents the interests of their state at the national level.',
+    ),
+    GlossaryEntry(
+      term: 'Representative',
+      definition: 'A member of the House of Representatives, the lower chamber of the United States Congress.',
+    ),
+    GlossaryEntry(
+      term: 'County Commissioner',
+      definition: 'An elected official who oversees the administration of a county.',
+      whatTheyDo: 'Responsible for local government functions and services.',
+    ),
+    GlossaryEntry(
+      term: 'State Assembly Member',
+      definition: 'An elected official who serves in the lower house of a state legislature.',
+      whatTheyDo: 'Proposes and votes on state laws and policies.',
+    ),
+    GlossaryEntry(
+      term: 'State Senator',
+      definition: 'An elected official who serves in the upper house of a state legislature.',
+      whatTheyDo: 'Represents the interests of their district at the state level.',
+    ),
+    GlossaryEntry(
+      term: 'President',
+      definition: 'The elected head of state and government of the United States.',
+      whatTheyDo: 'Serves as the Commander-in-Chief of the armed forces and oversees the executive branch of government.',
+    ),
+    GlossaryEntry(
+      term: 'Vice President',
+      definition: 'The second-highest executive officer of the United States, who also serves as President of the Senate.',
+      whatTheyDo: 'Assists the President and may assume the presidency if the President is unable to serve.',
+    ),
+  ]);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -117,6 +170,55 @@ class _HomePageState extends State<HomePage> {
         GestureDetector(
           onTap: () {
             // Handle Question Mark icon tap
+            final glossaryEntry = widget._representativeGlossary.entries.firstWhere(
+              (entry) => entry.term == representative.position,
+              orElse: () => GlossaryEntry(
+                term: 'Unknown',
+                definition: 'No definition available.',
+                whatTheyDo: 'No information available.',
+              ),
+            );
+
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(glossaryEntry.term),
+                    IconButton(
+                    icon: Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    ),
+                  ],
+                  ),
+                  content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                    'Definition:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 4),
+                    Text(glossaryEntry.definition),
+                    if (glossaryEntry.whatTheyDo != null) ...[
+                    SizedBox(height: 16),
+                    Text(
+                      'What They Do:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 4),
+                    Text(glossaryEntry.whatTheyDo!),
+                    ],
+                  ],
+                  ),
+                );
+              },
+            );
             print('Question icon tapped');
           },
           child: Icon(Icons.question_mark_rounded, color: Colors.blue),
@@ -156,69 +258,101 @@ class _HomePageState extends State<HomePage> {
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        GestureDetector(
-          onTap: () async {
-            // Handle phone icon tap
-            final Uri phoneUri = Uri(
-              scheme: 'tel',
-              path: representative.contactInfo.phone,
-            );
-            if (await canLaunchUrl(phoneUri)) {
-              await launchUrl(phoneUri);
-            } else {
-              print('Could not launch phone app: $phoneUri');
-            }
-          },
-          child: Icon(Icons.phone, color: Colors.red),
-        ),
-        GestureDetector(
-          onTap: () async {
-            // Handle email icon tap
-            final generatedEmail = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (context) => EmailGeneratorScreen(
-                      representative: representative,
-                      onEmailGenerated: (email) {
-                        // Handle the generated email
-                        print('Callback: $email');
-                      },
-                    ),
-              ),
-            );
-            if (generatedEmail != null) {
-              String encodedBody = Uri.encodeComponent(generatedEmail);
-              encodedBody = encodedBody
-                          .replaceAll("%27", "'")
-                          .replaceAll("%22", '"');
-              print('Encoded body: $encodedBody');
-              final Uri emailUri = Uri(
-                scheme: 'mailto',
-                path: representative.contactInfo.email,
-                query:
-                    'subject=${Uri.encodeComponent('Hello ${representative.name}')}'
-                    '&body=$encodedBody',
-              );
-              if (await canLaunchUrl(emailUri)) {
-                await launchUrl(emailUri);
-              } else {
-                print('Could not launch email app: $emailUri');
-              }
-            }
-            print('Email icon tapped');
-          },
-          child: Icon(Icons.email, color: Colors.red),
-        ),
-        GestureDetector(
-          onTap: () {
-            // Handle mailbox icon tap
-            print('Mailbox icon tapped');
-          },
-          child: Icon(Icons.markunread_mailbox, color: Colors.red),
-        ),
+        actionCallRepresentative(representative),
+        actionEmailRepresentative(representative),
+        actionMailRepresentative(representative),
       ],
     );
+  }
+
+  GestureDetector actionMailRepresentative(Representative representative) {
+    return GestureDetector(
+        onTap: () {
+          // Handle mailbox icon tap
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+            return AlertDialog(
+              title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Office Address'),
+                IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                ),
+              ],
+              ),
+              content: Text(representative.contactInfo.officeAddress),
+            );
+            },
+          );
+          print('Mailbox icon tapped');
+        },
+        child: Icon(Icons.markunread_mailbox, color: Colors.red),
+      );
+  }
+
+  GestureDetector actionCallRepresentative(Representative representative) {
+    return GestureDetector(
+        onTap: () async {
+          // Handle phone icon tap
+          final Uri phoneUri = Uri(
+            scheme: 'tel',
+            path: representative.contactInfo.phone,
+          );
+          if (await canLaunchUrl(phoneUri)) {
+            await launchUrl(phoneUri);
+          } else {
+            print('Could not launch phone app: $phoneUri');
+          }
+        },
+        child: Icon(Icons.phone, color: Colors.red),
+      );
+  }
+
+  GestureDetector actionEmailRepresentative(Representative representative) {
+    return GestureDetector(
+        onTap: () async {
+          // Handle email icon tap
+          final generatedEmail = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => EmailGeneratorScreen(
+                    representative: representative,
+                    onEmailGenerated: (email) {
+                      // Handle the generated email
+                      print('Callback: $email');
+                    },
+                  ),
+            ),
+          );
+          if (generatedEmail != null) {
+            String encodedBody = Uri.encodeComponent(generatedEmail);
+            encodedBody = encodedBody
+                        .replaceAll("%27", "'")
+                        .replaceAll("%22", '"');
+            print('Encoded body: $encodedBody');
+            final Uri emailUri = Uri(
+              scheme: 'mailto',
+              path: representative.contactInfo.email,
+              query:
+                  'subject=${Uri.encodeComponent('Hello ${representative.name}')}'
+                  '&body=$encodedBody',
+            );
+            if (await canLaunchUrl(emailUri)) {
+              await launchUrl(emailUri);
+            } else {
+              print('Could not launch email app: $emailUri');
+            }
+          }
+          print('Email icon tapped');
+        },
+        child: Icon(Icons.email, color: Colors.red),
+      );
   }
 
   Container representativeFilterBar() {
