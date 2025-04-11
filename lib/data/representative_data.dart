@@ -1,0 +1,73 @@
+import 'package:the_town_hall/models/representative_card.dart';
+
+final List<Representative> representativesData = [
+    Representative(
+      id: 1,
+      name: 'John Doe',
+      position: 'Mayor',
+      positionLevel: PositionLevel.city,
+      district: 'District 12',
+      city: 'La Mesa',
+      party: 'Democrat',
+      state: 'CA',
+      contactInfo: ContactInfo(
+        email: 'jdoe@lamesa.gov',
+        phone: '6198573234',
+        website: 'cityoflamesa.us',
+        officeAddress: '123 Main St, La Mesa, CA 91942',
+      ),
+      imageUrl: 'assets/images/user_icon.png',
+    ),
+    Representative(
+      id: 2,
+      name: 'Jane Smith',
+      position: 'City Council Member',
+      positionLevel: PositionLevel.city,
+      district: 'District 3',
+      city: 'La Mesa',
+      party: 'Republican',
+      state: 'CA',
+      contactInfo: ContactInfo(
+        email: 'jsmith@lamesa.gov',
+        phone: '6198573234',
+        website: 'cityoflamesa.us',
+        officeAddress: '123 Main St, La Mesa, CA 91942',
+      ),
+      imageUrl: 'assets/images/user_icon.png',
+    ),
+    Representative(
+      id: 3,
+      name: 'Bernie Sanders',
+      position: 'Senator',
+      positionLevel: PositionLevel.national,
+      district: 'At-Large',
+      city: '',
+      party: 'Independent',
+      state: 'VT',
+      contactInfo: ContactInfo(
+        email: 'sanders@senate.gov',
+        phone: '2022245141',
+        website: 'sanders.senate.gov',
+        officeAddress: '332 Dirksen Senate Office Building, Washington, DC 20510',
+      ),
+      imageUrl: 'assets/images/user_icon.png',
+    ),
+    Representative(
+      id: 4,
+      name: 'Gavin Newsom',
+      position: 'Governor',
+      positionLevel: PositionLevel.state,
+      district: 'Statewide',
+      city: '',
+      party: 'Democrat',
+      state: 'CA',
+      contactInfo: ContactInfo(
+        email: 'governor@ca.gov',
+        phone: '9164452841',
+        website: 'gov.ca.gov',
+        officeAddress: '1303 10th Street, Suite 1173, Sacramento, CA 95814',
+      ),
+      imageUrl: 'assets/images/user_icon.png',
+    ),
+    // Add more representatives as needed
+  ];

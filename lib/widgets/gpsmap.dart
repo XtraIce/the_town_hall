@@ -2,10 +2,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:the_town_hall/models/representative_card.dart';
 import 'package:the_town_hall/widgets/locationservice.dart'; // For LatLng object
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'location_provider.dart';
+import 'location_notifier.dart';
 
 class GpsMap extends StatefulWidget {
   const GpsMap({super.key});
@@ -17,11 +18,12 @@ class GpsMap extends StatefulWidget {
 @override
 class _GpsMapState extends State<GpsMap> {
   // This widget is the root of your application.
-  LatLng? _currentLocation;
+  // LatLng? _targetLocation;
   LatLng? _gpsLocation;
-  bool _isGps = true;
+  LatLng? _lastMovedLocation;
   final LocationService _locationService = LocationService();
   final MapController _mapController = MapController();
+  bool _isMapReady = false;
 
   @override
   void initState() {
@@ -32,26 +34,16 @@ class _GpsMapState extends State<GpsMap> {
   Future<void> _getCurrentLocation() async {
     _gpsLocation = await _locationService.getCurrentLocation();
     setState(() {
-      _currentLocation = _gpsLocation;
-      _isGps = true;
+      // _targetLocation = _gpsLocation;
+      final locationNotifier = Provider.of<LocationNotifier>(
+        context,
+        listen: false,
+      );
+      locationNotifier.updateGpsLocation(_gpsLocation);
       print(
         'Gps location: ${_gpsLocation!.latitude}, ${_gpsLocation!.longitude}',
       );
     });
-
-    if (_currentLocation != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _mapController.move(
-          _currentLocation!,
-          13.0,
-        ); // Move the map to the current location
-        print(
-          'Current location: ${_currentLocation!.latitude}, ${_currentLocation!.longitude}',
-        );
-      });
-    } else {
-      print('Failed to get current location');
-    }
   }
 
   @override
@@ -60,73 +52,68 @@ class _GpsMapState extends State<GpsMap> {
 
     return Consumer<LocationNotifier>(
       builder: (context, locationNotifier, child) {
-        if (!_isGps) {
-          final searchedLocation = locationNotifier.searchedLocation;
-          if (searchedLocation != null) {
-            _currentLocation = searchedLocation;
-            print(
-              "updated current location with searched location: ${searchedLocation.latitude}, ${searchedLocation.longitude}",
-            );
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _mapController.move(searchedLocation, initialZoom);
-            });
-          }
-        } else {
-          _isGps = false;
-        }
         return Scaffold(
           body: Stack(
             children: [
-              _currentLocation == null
-                  ? const Center(child: CircularProgressIndicator())
-                  : FlutterMap(
-                    mapController: _mapController,
-                    options: MapOptions(
-                      initialCenter:
-                          _currentLocation!, // Use the current location if available
-                      initialZoom: initialZoom, // higher number = more zoom
-                      maxZoom: 20,
-                      minZoom: 2,
-                      interactionOptions: InteractionOptions(
-                        flags: InteractiveFlag.all,
-                      ),
-                    ),
-                    children: [
-                      TileLayer(
-                        urlTemplate:
-                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        userAgentPackageName: 'com.example.theTownHall',
-                      ),
-                      MarkerLayer(
-                        markers: [
-                          Marker(
-                            point: _currentLocation!,
-                            width: 80,
-                            height: 80,
-                            child: Tooltip(
-                              message: 'Current Location',
-                              child: const Stack(
-                                alignment: Alignment.topCenter,
-                                fit: StackFit.expand,
-                                children: [
-                                  Icon(
-                                    Icons.location_pin,
-                                    color: Colors.blue,
-                                    size: 40,
-                                  ),
-                                  Icon(
-                                    Icons.person,
-                                    color: Colors.white,
-                                    size: 30,
-                                  ),
-                                ],
-                              ),
-                            ),
+              Selector<LocationNotifier, LatLng?>(
+                selector: (context, notifier) => notifier.targetLocation,
+                builder: (context, newLocation, child) {
+                  if (_isMapReady && 
+                      newLocation != null &&
+                      newLocation != _lastMovedLocation) {
+                    _lastMovedLocation = newLocation;
+                    _mapController.move(newLocation, initialZoom);
+                  }
+                  return newLocation == null
+                      ? const Center(child: CircularProgressIndicator())
+                      : FlutterMap(
+                        mapController: _mapController,
+                        options: MapOptions(
+                          initialCenter: newLocation,
+                          initialZoom: initialZoom,
+                          maxZoom: 20,
+                          minZoom: 2,
+                          interactionOptions: InteractionOptions(
+                            flags: InteractiveFlag.all,
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
+                          onMapReady: () => setState(() {
+                            _isMapReady = true;
+                          }),
+                        ),
+                        children: [
+                          TileLayer(
+                            urlTemplate:
+                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            userAgentPackageName: 'com.example.theTownHall',
+                          ),
+                          MarkerLayer(
+                            markers: [
+                              Marker(
+                                point: newLocation,
+                                width: 80,
+                                height: 80,
+                                child: Tooltip(
+                                  message: 'Current Location',
+                                  child: const Stack(
+                                    alignment: Alignment.topCenter,
+                                    fit: StackFit.expand,
+                                    children: [
+                                      Icon(
+                                        Icons.location_pin,
+                                        color: Colors.blue,
+                                        size: 40,
+                                      ),
+                                      Icon(
+                                        Icons.person,
+                                        color: Colors.white,
+                                        size: 30,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),       
               Positioned(
                 bottom: 10,
                 right: 10,
@@ -160,20 +147,25 @@ class _GpsMapState extends State<GpsMap> {
                                     ),
                                   );
                                 },
-                        ),
-                      ],
+                          ),
+                       ],
                     ),
                   ),
                 ),
+              ),
+              ],
+                  );
+                },
               ),
             ],
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: _getCurrentLocation,
-            child: Icon(Icons.my_location),
-          ),
+            child: Icon(Icons.my_location))
         );
-      },
+      }
     );
   }
 }
+
+            

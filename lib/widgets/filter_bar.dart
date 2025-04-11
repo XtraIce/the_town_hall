@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 
 class FilterBar extends StatefulWidget {
   final Map<String, bool> filters;
-  const FilterBar({super.key, required this.filters});
+  final ValueChanged<Map<String, bool>> onFiltersChanged;
+
+  const FilterBar({
+    super.key,
+    required this.filters,
+    required this.onFiltersChanged,
+  });
 
   @override
   State<FilterBar> createState() => _FilterBarState();
@@ -23,6 +29,13 @@ class _FilterBarState extends State<FilterBar> {
         .map((entry) => entry.key)
         .toList();
     return selectedFilters.isEmpty ? "Select filters" : selectedFilters.join(', ');
+  }
+
+  void updateFilter(String filter, bool value) {
+    setState(() {
+      filters[filter] = value;
+    });
+    widget.onFiltersChanged(filters); // Notify parent widget
   }
 
   @override
@@ -53,7 +66,7 @@ class _FilterBarState extends State<FilterBar> {
                         setState(() {
                           filters[filter] = value ?? false;
                         });
-                        this.setState(() {}); // Update parent state
+                        updateFilter(filter, value ?? false); // Update parent state
                       },
                     ),
                   ],

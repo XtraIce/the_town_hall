@@ -1,124 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:the_town_hall/data/glossary_data.dart';
+import 'package:the_town_hall/data/representative_data.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:the_town_hall/models/glossary.dart';
 import 'package:the_town_hall/widgets/email_generator_screen.dart';
 import 'package:the_town_hall/models/representative_card.dart';
 import 'package:the_town_hall/widgets/gpsmap.dart';
-import 'package:the_town_hall/widgets/location_provider.dart';
+import 'package:the_town_hall/widgets/location_notifier.dart';
 import 'package:the_town_hall/widgets/locationsearch.dart';
 import 'package:the_town_hall/widgets/filter_bar.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  Map<String, bool> get _repFilters => {
-    'Local': false,
-    'City': false,
-    'County': false,
-    'State': true,
-    'National': true,
-  };
-
-  List<Representative> get _representatives => [
-    Representative(
-      id: 1,
-      name: 'John Doe',
-      position: 'Mayor',
-      positionLevel: PositionLevel.city,
-      district: 'District 12',
-      city: 'La Mesa',
-      party: 'Democrat',
-      state: 'California',
-      contactInfo: ContactInfo(
-        email: 'jdoe@lamesa.gov',
-        phone: '6198573234',
-        website: 'cityoflamesa.us',
-        officeAddress: '123 Main St, La Mesa, CA 91942',
-      ),
-      imageUrl: 'assets/images/user_icon.png',
-    ),
-    Representative(
-      id: 2,
-      name: 'Jane Smith',
-      position: 'City Council Member',
-      positionLevel: PositionLevel.city,
-      district: 'District 3',
-      city: 'La Mesa',
-      party: 'Republican',
-      state: 'California',
-      contactInfo: ContactInfo(
-        email: 'jsmith@lamesa.gov',
-        phone: '6198573234',
-        website: 'cityoflamesa.us',
-        officeAddress: '123 Main St, La Mesa, CA 91942',
-      ),
-      imageUrl: 'assets/images/user_icon.png',
-    ),
-    // Add more representatives as needed
-  ];
-
-  Glossary get _representativeGlossary => Glossary(entries: [
-    GlossaryEntry(
-      term: 'Mayor',
-      definition: 'The elected head of a city, town, or municipality.',
-      whatTheyDo: 'Oversees the city government and represents the city in official functions.',
-    ),
-    GlossaryEntry(
-      term: 'City Council Member',
-      definition: 'An elected official who serves on the legislative body of a city.',
-      whatTheyDo: 'Makes decisions on local laws, budgets, and policies.',
-    ),
-    GlossaryEntry(
-      term: 'Governor',
-      definition: 'The elected executive head of a state in the United States.',
-      whatTheyDo: 'Oversees the state government and implements state laws.',
-    ),
-    GlossaryEntry(
-      term: 'Senator',
-      definition: 'A member of the Senate, the upper chamber of the United States Congress.',
-      whatTheyDo: 'Represents the interests of their state at the national level.',
-    ),
-    GlossaryEntry(
-      term: 'Representative',
-      definition: 'A member of the House of Representatives, the lower chamber of the United States Congress.',
-    ),
-    GlossaryEntry(
-      term: 'County Commissioner',
-      definition: 'An elected official who oversees the administration of a county.',
-      whatTheyDo: 'Responsible for local government functions and services.',
-    ),
-    GlossaryEntry(
-      term: 'State Assembly Member',
-      definition: 'An elected official who serves in the lower house of a state legislature.',
-      whatTheyDo: 'Proposes and votes on state laws and policies.',
-    ),
-    GlossaryEntry(
-      term: 'State Senator',
-      definition: 'An elected official who serves in the upper house of a state legislature.',
-      whatTheyDo: 'Represents the interests of their district at the state level.',
-    ),
-    GlossaryEntry(
-      term: 'President',
-      definition: 'The elected head of state and government of the United States.',
-      whatTheyDo: 'Serves as the Commander-in-Chief of the armed forces and oversees the executive branch of government.',
-    ),
-    GlossaryEntry(
-      term: 'Vice President',
-      definition: 'The second-highest executive officer of the United States, who also serves as President of the Senate.',
-      whatTheyDo: 'Assists the President and may assume the presidency if the President is unable to serve.',
-    ),
-  ]);
-
   @override
-  State<HomePage> createState() => _HomePageState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => LocationNotifier(),
+      child: const HomePageContent(),
+    );
+  }
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageContent extends StatefulWidget {
+  const HomePageContent({super.key});
+
+  @override
+  State<HomePageContent> createState() => _HomePageContentState();
+}
+
+class _HomePageContentState extends State<HomePageContent> {
+
+    Map<String, bool> _repFilters = {
+    'local': false,
+    'city': false,
+    'county': false,
+    'state': true,
+    'national': true,
+  };
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(children: [titleBar(), mapAndSearch(), representatives()]),
+      body: ListView(
+        children: [
+          titleBar(),
+          mapAndSearch(),
+          representatives(),
+        ],
+      ),
     );
   }
 
@@ -138,24 +69,40 @@ class _HomePageState extends State<HomePage> {
 
   Expanded representativeList() {
     return Expanded(
-      child: ListView.builder(
-        itemCount: widget._representatives.length,
-        itemBuilder: (context, index) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            child: Center(
-              child: Card(
-                color: Colors.white,
-                elevation: 2,
-                child: Row(
-                  children: [
-                    representativeDetails(index),
-                    questionAndHistory(index),
-                    Spacer(flex: 5),
-                  ],
+      child: Consumer<LocationNotifier>(
+        builder: (context, locationNotifier, child) {
+          final userState = locationNotifier.targetUSState;
+          final filteredRepresentatives = representativesData.where((rep) {
+            String str = ('Filter for ${rep.positionLevel.toShortString()}: ${_repFilters[rep.positionLevel.toShortString()]}');
+            print(str);
+            String str2 =('Representative state: ${rep.state}, User state: $userState');
+            print(str2);
+            return _repFilters[rep.positionLevel.toShortString()] == true &&
+                 (rep.state == userState || userState == null);
+            }).toList();
+
+          locationNotifier.updateFilteredRepresentativesLocations(filteredRepresentatives);
+
+          return ListView.builder(
+            itemCount: filteredRepresentatives.length,
+            itemBuilder: (context, index) {
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                child: Center(
+                  child: Card(
+                    color: Colors.white,
+                    elevation: 2,
+                    child: Row(
+                      children: [
+                        representativeDetails(filteredRepresentatives, index),
+                        questionAndHistory(index),
+                        Spacer(flex: 5),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           );
         },
       ),
@@ -163,14 +110,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Column questionAndHistory(int index) {
-    final representative = widget._representatives[index];
+    final representative = representativesData[index];
     return Column(
       spacing: 16,
       children: [
         GestureDetector(
           onTap: () {
             // Handle Question Mark icon tap
-            final glossaryEntry = widget._representativeGlossary.entries.firstWhere(
+            final glossaryEntry = glossaryData.entries.firstWhere(
               (entry) => entry.term == representative.position,
               orElse: () => GlossaryEntry(
                 term: 'Unknown',
@@ -234,8 +181,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Expanded representativeDetails(int index) {
-    final representative = widget._representatives[index];
+  Expanded representativeDetails(List<Representative> filteredRepresentatives, int index) {
+    final representative = filteredRepresentatives[index];
     return Expanded(
       flex: 75,
       child: Column(
@@ -372,29 +319,33 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      child: FilterBar(filters: widget._repFilters),
+      child: FilterBar(
+        filters: _repFilters,
+        onFiltersChanged: (updatedFilters) {
+            setState(() {
+              _repFilters = updatedFilters;
+            });
+        },
+      ),
     );
   }
 
-  ChangeNotifierProvider<LocationNotifier> mapAndSearch() {
-    return ChangeNotifierProvider(
-      create: (context) => LocationNotifier(),
-      child: Column(
-        children: [
-          Stack(
-            children: [
-              SizedBox(
-                height: 400, // Set a fixed height for the map
-                child: GpsMap(),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: LocationSearchScreen(),
-              ),
-            ],
-          ),
-        ],
-      ),
+  Column mapAndSearch() {
+    return Column(
+      children: [
+        Stack(
+          children: [
+            SizedBox(
+              height: 400, // Set a fixed height for the map
+              child: GpsMap(),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: LocationSearchScreen(),
+            ),
+          ],
+        ),
+      ],
     );
   }
 

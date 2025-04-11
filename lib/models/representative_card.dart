@@ -2,7 +2,7 @@ class Representative {
   final int id;
   final String name;
   final String position;
-  final Enum positionLevel;
+  final PositionLevel positionLevel;
   final String district;
   final String state;
   final String city;
@@ -47,4 +47,10 @@ enum PositionLevel {
   county,
   state,
   national
+}
+
+extension PositionLevelExtension on PositionLevel {
+  String toShortString() {
+    return toString().split('.').last;
+  }
 }

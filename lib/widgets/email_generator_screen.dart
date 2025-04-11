@@ -12,6 +12,7 @@ class EmailGeneratorScreen extends StatefulWidget {
     required this.onEmailGenerated,});
   
   @override
+  // ignore: library_private_types_in_public_api
   _EmailGeneratorScreenState createState() => _EmailGeneratorScreenState();
 }
 
@@ -41,7 +42,9 @@ class _EmailGeneratorScreenState extends State<EmailGeneratorScreen> {
       widget.onEmailGenerated(email);
 
       // Close the screen and return the generated email
-      Navigator.pop(context, email);
+      if (mounted) {
+        Navigator.pop(context, email);
+      }
     } catch (e) {
       setState(() {
         _generatedEmail = 'Error generating email: $e';
