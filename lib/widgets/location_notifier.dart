@@ -84,18 +84,6 @@ class LocationNotifier extends ChangeNotifier {
     notifyListeners(); // Notify any widgets listening to this provider
   }
 
-  void _printAllLocations() {
-    print('Target Location: $targetLocation');
-    print('Searched Location: $searchedLocation');
-    print('GPS Location: $gpsLocation');
-    print('Country: $targetCountry');
-    print('US State: $targetUSState');
-    print('County: $targetCounty');
-    print('City: $targetCity');
-    print('Neighborhood: $targetNeighborhood');
-    print('Zip Code: $targetZipCode');
-  }
-
   Future<void> _reverseGeocode(LatLng location) async {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(
