@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:the_town_hall/widgets/home/title_bar.dart';
+
 import 'package:the_town_hall/widgets/home/map_and_search.dart';
 import 'package:the_town_hall/widgets/home/representatives.dart';
+import 'package:the_town_hall/widgets/home/title_bar.dart';
+
 import 'package:the_town_hall/widgets/location_notifier.dart';
 
 class HomePage extends StatelessWidget {
@@ -25,6 +27,12 @@ class HomePageContent extends StatefulWidget {
 }
 
 class _HomePageContentState extends State<HomePageContent> {
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize any data or state here if needed
+  }
 
   @override
   Widget build(BuildContext context) {

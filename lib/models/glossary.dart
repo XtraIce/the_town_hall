@@ -24,6 +24,21 @@ class GlossaryEntry {
     this.whatTheyDo,
   });
 
+  factory GlossaryEntry.fromJson(Map<String, dynamic> json) {
+    return GlossaryEntry(
+      term: json['term'],
+      definition: json['definition'],
+      whatTheyDo: json['whatTheyDo'],
+    );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'term': term,
+      'definition': definition,
+      'whatTheyDo': whatTheyDo,
+    };
+  }
+
   @override
   String toString() {
     return '$term: $definition';

@@ -12,7 +12,7 @@ class AiService {
   }
 
   Future<void> _loadApiKey() async {
-    final config = await rootBundle.loadString('assets/ai_config.json');
+    final config = await rootBundle.loadString('assets/configs/ai_config.json');
     final configData = jsonDecode(config);
     apiKey = configData['deepseek_api_key'];
     apiUrl = configData['deepseek_api_url'];

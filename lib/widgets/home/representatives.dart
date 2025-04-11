@@ -27,6 +27,11 @@ class _RepresentativesState extends State<Representatives> {
   };
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       width: 402,
@@ -95,7 +100,7 @@ class _RepresentativesState extends State<Representatives> {
   }
 
   List<Representative> _getFilteredRepresentatives(String? userState) {
-    return representativesData.where((rep) {
+    return gRepresentativeDataManager.representatives.where((rep) {
       return _repFilters[rep.positionLevel.toShortString()] == true &&
           (rep.state == userState || userState == null);
     }).toList();
@@ -251,7 +256,7 @@ class _RepresentativesState extends State<Representatives> {
   }
 
   void _showGlossaryEntry(Representative representative) {
-    final glossaryEntry = glossaryData.entries.firstWhere(
+    final glossaryEntry = gGlossaryManager.glossaryData.entries.firstWhere(
       (entry) => entry.term == representative.position,
       orElse: () => GlossaryEntry(
         term: 'Unknown',

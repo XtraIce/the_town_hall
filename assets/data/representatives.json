@@ -1,0 +1,75 @@
+[
+    {
+        "id": 1,
+        "name": "John Doe",
+        "position": "Mayor",
+        "positionLevel": "city",
+        "district": "District 12",
+        "city": "La Mesa",
+        "party": "Democrat",
+        "state": "CA",
+        "contactInfo": {
+            "email": "jdoe@lamesa.gov",
+            "phone": "6198573234",
+            "website": "cityoflamesa.us",
+            "officeAddress": "123 Main St, La Mesa, CA 91942",
+            "locationAddress": "123 Main St, La Mesa, CA 91942"
+        },
+        "imageUrl": "assets/images/user_icon.png"
+    },
+    {
+        "id": 2,
+        "name": "Jane Smith",
+        "position": "City Council Member",
+        "positionLevel": "city",
+        "district": "District 3",
+        "city": "La Mesa",
+        "party": "Republican",
+        "state": "CA",
+        "contactInfo": {
+            "email": "jsmith@lamesa.gov",
+            "phone": "6198573234",
+            "website": "cityoflamesa.us",
+            "officeAddress": "123 Main St, La Mesa, CA 91942",
+            "locationAddress": "123 Main St, La Mesa, CA 91942"
+        },
+        "imageUrl": "assets/images/user_icon.png"
+    },
+    {
+        "id": 3,
+        "name": "Bernie Sanders",
+        "position": "Senator",
+        "positionLevel": "national",
+        "district": "At-Large",
+        "city": "",
+        "party": "Independent",
+        "state": "VT",
+        "contactInfo": {
+            "email": "sanders@senate.gov",
+            "phone": "2022245141",
+            "website": "sanders.senate.gov",
+            "officeAddress": "332 Dirksen Senate Office Building, Washington, DC 20510",
+            "officeAddress2": "1 Church St., 3rd Floor, Burlington, VT 05401",
+            "locationAddress": "332 Dirksen Senate Office Building, Washington, DC 20510"
+        },
+        "imageUrl": "assets/images/user_icon.png"
+    },
+    {
+        "id": 4,
+        "name": "Gavin Newsom",
+        "position": "Governor",
+        "positionLevel": "state",
+        "district": "Statewide",
+        "city": "",
+        "party": "Democrat",
+        "state": "CA",
+        "contactInfo": {
+            "email": "governor@ca.gov",
+            "phone": "9164452841",
+            "website": "gov.ca.gov",
+            "officeAddress": "1303 10th Street, Suite 1173, Sacramento, CA 95814",
+            "locationAddress": "1303 10th Street, Suite 1173, Sacramento, CA 95814"
+        },
+        "imageUrl": "assets/images/user_icon.png"
+    }
+]

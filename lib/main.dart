@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:the_town_hall/pages/home.dart';
+import 'package:the_town_hall/data/glossary_data.dart';
+import 'package:the_town_hall/data/representative_data.dart';
+import 'package:the_town_hall/utility/load_util.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await AssetDataLoader.ensureAssetsInDocuments();
+  await gRepresentativeDataManager.initRepresentatives();
+  await gGlossaryManager.initGlossary();
+
   runApp(const MyApp());
 }
 

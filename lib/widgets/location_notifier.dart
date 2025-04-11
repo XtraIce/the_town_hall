@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart'; // If you're using flutter_map
 import 'package:geocoding/geocoding.dart';
+import 'package:the_town_hall/data/representative_data.dart';
 import 'package:the_town_hall/models/representative_card.dart';
 
 class LocationNotifier extends ChangeNotifier {
@@ -69,16 +70,36 @@ class LocationNotifier extends ChangeNotifier {
     for (var representative in newLocations) {
       try {
         List<Location> locations = await locationFromAddress(
-          representative.contactInfo.officeAddress,
+          representative.contactInfo.locationAddress,
         );
         if (locations.isNotEmpty) {
           _filteredRepresentativesLocations[representative] = LatLng(
             locations.first.latitude,
             locations.first.longitude,
           );
+          continue; // Skip to the next representative if successful
         }
       } catch (e) {
-        print('Error geocoding address for ${representative.name}: $e');
+        print('Error geocoding officeAddress for ${representative.name}: $e');
+      }
+
+      // Try officeAddress2 if officeAddress fails
+      try {
+        List<Location> locations = await locationFromAddress(
+          representative.contactInfo.officeAddress2 ?? '',
+        );
+        if (locations.isNotEmpty) {
+          _filteredRepresentativesLocations[representative] = LatLng(
+            locations.first.latitude,
+            locations.first.longitude,
+          );
+            representative.contactInfo.locationAddress =
+              representative.contactInfo.officeAddress2 ?? '';
+            gRepresentativeDataManager.updateRepresentative(representative.id,
+              representative.toJson());
+        }
+      } catch (e) {
+        print('Error geocoding officeAddress2 for ${representative.name}: $e');
       }
     }
     notifyListeners(); // Notify any widgets listening to this provider
